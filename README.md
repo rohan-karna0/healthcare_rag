@@ -83,29 +83,138 @@ Grounded Response
 # Project Structure
 
 ```text
+## Project Structure
+
+```text
 healthcare-rag/
 │
-├── app.py
+├── README.md
 ├── requirements.txt
-├── setup.py
 ├── .env
+├── .gitignore
+├── app.py
 │
-├── src/
-│   ├── helper.py
-│   ├── prompt.py
-│   └── __init__.py
+├── config/
+│   ├── settings.py
+│   ├── sources.py
+│   └── prompts.py
 │
-├── Data/
+├── data/
+│   ├── raw/
+│   │   ├── ADA/
+│   │   ├── WHO/
+│   │   ├── CDC/
+│   │   ├── NIDDK/
+│   │   └── FDA/
+│   │
+│   ├── processed/
+│   ├── chunks/
+│   └── embeddings/
 │
-├── notebook/
+├── metadata/
+│   ├── documents.json
+│   ├── crawl_log.json
+│   └── download_log.json
 │
-├── research/
+├── logs/
 │
-├── store_index/
+├── ingestion/
+│   ├── crawler/
+│   │   ├── crawler.py
+│   │   ├── queue.py
+│   │   ├── task.py
+│   │   ├── filters.py
+│   │   ├── robots.py
+│   │   └── sitemap.py
+│   │
+│   ├── downloader/
+│   │   ├── downloader.py
+│   │   ├── validator.py
+│   │   └── retry.py
+│   │
+│   ├── parser/
+│   │   ├── pdf_parser.py
+│   │   ├── html_parser.py
+│   │   ├── table_parser.py
+│   │   └── parser_factory.py
+│   │
+│   ├── metadata/
+│   │   ├── metadata.py
+│   │   ├── hashing.py
+│   │   └── repository.py
+│   │
+│   ├── utils/
+│   │   ├── logger.py
+│   │   ├── helpers.py
+│   │   └── exceptions.py
+│   │
+│   └── ingest.py
 │
-├── templates/
+├── processing/
+│   ├── cleaning/
+│   │   ├── text_cleaner.py
+│   │   └── html_cleaner.py
+│   │
+│   ├── chunking/
+│   │   ├── recursive_chunker.py
+│   │   ├── semantic_chunker.py
+│   │   ├── contextual_chunker.py
+│   │   └── chunk_manager.py
+│   │
+│   ├── embeddings/
+│   │   ├── embedder.py
+│   │   ├── embedding_cache.py
+│   │   └── models.py
+│   │
+│   └── indexing/
+│       └── index_pipeline.py
 │
-└── README.md
+├── vectorstore/
+│   ├── qdrant_client.py
+│   ├── collections.py
+│   └── uploader.py
+│
+├── retrieval/
+│   ├── dense.py
+│   ├── bm25.py
+│   ├── hybrid.py
+│   ├── query_expansion.py
+│   ├── metadata_filter.py
+│   └── retriever.py
+│
+├── reranking/
+│   ├── bge_reranker.py
+│   └── cross_encoder.py
+│
+├── generation/
+│   ├── prompt_builder.py
+│   ├── generator.py
+│   ├── citations.py
+│   └── answer_formatter.py
+│
+├── evaluation/
+│   ├── ragas_eval.py
+│   ├── retrieval_eval.py
+│   ├── generation_eval.py
+│   └── benchmark.py
+│
+├── api/
+│   ├── app.py
+│   ├── routes.py
+│   └── schemas.py
+│
+├── ui/
+│   └── streamlit_app.py
+│
+├── notebooks/
+│
+└── tests/
+    ├── test_ingestion.py
+    ├── test_chunking.py
+    ├── test_retrieval.py
+    └── test_generation.py
+```
+
 ```
 
 ---
