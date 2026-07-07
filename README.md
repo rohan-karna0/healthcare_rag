@@ -56,7 +56,7 @@ Grounded Response
 * Intelligent document chunking
 * Dense vector embeddings
 * Semantic similarity search
-* Pinecone vector database integration
+* Qdrant vector database integration (server or local embedded mode)
 * Context-aware prompt engineering
 * Grounded response generation
 * Modular and scalable architecture
@@ -73,9 +73,9 @@ Grounded Response
 | LLM Runtime                  | Ollama                                                                        |
 | Supported Open-Weight Models | Llama 3, Llama 3.1, Llama 3.2, Mistral, Gemma 2, Qwen 2.5, Phi 3, DeepSeek-R1 |
 | Embedding Model              | HuggingFace Sentence Transformers                                             |
-| Vector Database              | Pinecone                                                                      |
-| Interface                    | Streamlit                                                                     |
-| Environment                  | Conda                                                                         |
+| Vector Database              | Qdrant                                                                        |
+| Interface                    | Streamlit + FastAPI                                                           |
+| Environment                  | Python venv (Conda optional)                                                  |
 | Configuration                | python-dotenv                                                                 |
 
 ---
@@ -264,7 +264,7 @@ Each document chunk is converted into a dense vector using HuggingFace Sentence 
 
 ### 4. Vector Storage
 
-The generated embeddings are stored inside Pinecone for efficient semantic retrieval.
+The generated embeddings are stored inside Qdrant for efficient semantic retrieval.
 
 ---
 
@@ -288,66 +288,57 @@ The prompt is sent to an open-weight LLM running locally through Ollama, which g
 
 # Installation
 
+> **Note:** If you cloned into a parent folder, work inside the nested project directory:
+> `C:\Users\ROHAN\Desktop\healthcare_rag\healthcare_rag`
+
 Clone the repository
 
 ```bash
-git clone https://github.com/your-username/healthcare-rag.git
+git clone https://github.com/rohan-karna0/healthcare_rag.git
+cd healthcare_rag
 ```
 
-Move into the project directory
+Create a virtual environment (Windows PowerShell)
 
-```bash
-cd healthcare-rag
-```
-
-Create a virtual environment
-
-```bash
-conda create -n healthcare-rag python=3.11
-conda activate healthcare-rag
-```
-
-Install dependencies
-
-```bash
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-Install Ollama
+Copy environment template
 
-```bash
-curl -fsSL https://ollama.com/install.sh | sh
+```powershell
+copy .env.example .env
 ```
 
-Pull your preferred open-weight model
+Install Ollama (Windows)
 
-```bash
+Download and install from [https://ollama.com](https://ollama.com), then pull a model:
+
+```powershell
 ollama pull llama3.2
 ```
 
-or
+Qdrant setup (optional — embedded local mode works without Docker)
 
-```bash
-ollama pull mistral
+```powershell
+docker run -p 6333:6333 qdrant/qdrant
 ```
 
-or
+If Docker is not available, the app automatically falls back to local Qdrant storage at `data/qdrant_db/`.
 
-```bash
-ollama pull qwen2.5
+Run the pipeline
+
+```powershell
+python app.py ingest --sources CDC,WHO
+python app.py index
+python app.py query "What is type 2 diabetes?"
+python app.py serve-ui
+python app.py serve-api
 ```
 
-Create a `.env` file
-
-```env
-PINECONE_API_KEY=YOUR_API_KEY
-```
-
-Run the application
-
-```bash
-python app.py
-```
+API docs: `http://localhost:8000/docs`
 
 ---
 
@@ -361,7 +352,7 @@ Generate Query Embedding
        │
        ▼
 Semantic Search
-(Pinecone)
+(Qdrant)
        │
        ▼
 Retrieve Top-k Chunks
