@@ -1,20 +1,22 @@
 # Healthcare RAG System
 
-Production-ready Retrieval-Augmented Generation (RAG) system for answering healthcare-related questions using trusted medical knowledge, semantic search, and Large Language Models.
+Production-ready Retrieval-Augmented Generation (RAG) system for answering healthcare-related questions using trusted medical knowledge, semantic search, vector databases, and **open-weight Large Language Models running locally with Ollama**.
 
-The project demonstrates how modern RAG pipelines are built from scratch using vector databases, embedding models, retrievers, and LLMs while following a modular and scalable architecture.
+This project demonstrates how modern RAG systems are built from scratch using document ingestion, intelligent chunking, embedding models, vector search, retrieval pipelines, and local LLM inference while following a modular and production-ready architecture.
 
 ---
 
-## Overview
+# Overview
 
-Traditional Large Language Models generate responses based only on their pre-trained knowledge, which can become outdated or hallucinate facts.
+Traditional Large Language Models generate responses based only on their pre-trained knowledge, which can become outdated or produce hallucinations.
 
-This project augments the LLM with external healthcare documents. Instead of relying only on model memory, the system retrieves relevant medical information from a knowledge base and provides grounded responses.
+This project enhances an open-weight LLM with external healthcare knowledge. Instead of relying solely on the model's internal parameters, the system retrieves the most relevant medical information from a vector database and injects it into the prompt before generating a response.
+
+This Retrieval-Augmented Generation (RAG) approach produces more accurate, explainable, and context-aware answers.
 
 The pipeline consists of:
 
-```
+```text
 Medical Documents
         │
         ▼
@@ -36,48 +38,51 @@ Retriever
 Relevant Context
         │
         ▼
-Large Language Model
+Open-Weight LLM
+(Ollama)
         │
         ▼
-Final Answer
+Grounded Response
 ```
 
 ---
 
 # Features
 
-* End-to-end RAG pipeline
-* Modular project architecture
-* Medical document ingestion
+* End-to-end Retrieval-Augmented Generation pipeline
+* Fully local LLM inference using Ollama
+* Supports multiple open-weight LLMs
+* Medical document ingestion pipeline
 * Intelligent document chunking
 * Dense vector embeddings
 * Semantic similarity search
-* Vector database integration
+* Pinecone vector database integration
 * Context-aware prompt engineering
-* Grounded LLM responses
+* Grounded response generation
+* Modular and scalable architecture
 * Easily extendable to production
 
 ---
 
 # Tech Stack
 
-| Component       | Technology                        |
-| --------------- | --------------------------------- |
-| Language        | Python                            |
-| Framework       | LangChain                         |
-| LLM             | Groq Llama 3                      |
-| Embedding Model | HuggingFace Sentence Transformers |
-| Vector Database | Pinecone                          |
-| Environment     | Conda                             |
-| API             | FastAPI (optional)                |
-| Interface       | Streamlit                         |
-| Configuration   | dotenv                            |
+| Component                    | Technology                                                                    |
+| ---------------------------- | ----------------------------------------------------------------------------- |
+| Programming Language         | Python 3.11                                                                   |
+| Framework                    | LangChain                                                                     |
+| LLM Runtime                  | Ollama                                                                        |
+| Supported Open-Weight Models | Llama 3, Llama 3.1, Llama 3.2, Mistral, Gemma 2, Qwen 2.5, Phi 3, DeepSeek-R1 |
+| Embedding Model              | HuggingFace Sentence Transformers                                             |
+| Vector Database              | Pinecone                                                                      |
+| Interface                    | Streamlit                                                                     |
+| Environment                  | Conda                                                                         |
+| Configuration                | python-dotenv                                                                 |
 
 ---
 
 # Project Structure
 
-```
+```text
 healthcare-rag/
 │
 ├── app.py
@@ -90,13 +95,13 @@ healthcare-rag/
 │   ├── prompt.py
 │   └── __init__.py
 │
-├── research/
+├── Data/
 │
 ├── notebook/
 │
-├── store_index/
+├── research/
 │
-├── Data/
+├── store_index/
 │
 ├── templates/
 │
@@ -105,47 +110,70 @@ healthcare-rag/
 
 ---
 
+# Supported Open-Weight Models
+
+The application is model-agnostic and works with any Ollama-compatible open-weight model.
+
+Examples include:
+
+* Llama 3
+* Llama 3.1
+* Llama 3.2
+* Mistral
+* Gemma 2
+* Qwen 2.5
+* Phi 3
+* DeepSeek-R1
+* DeepSeek-R1 Distill Llama
+* DeepSeek-R1 Distill Qwen
+* TinyLlama
+* CodeLlama
+
+Switching models only requires changing the model name in the Ollama configuration. No changes to the RAG pipeline are required.
+
+---
+
 # How It Works
 
 ### 1. Document Loading
 
-Medical documents are loaded into memory using document loaders.
+Healthcare documents are loaded from the knowledge base.
 
 ---
 
 ### 2. Text Chunking
 
-Large documents are divided into smaller overlapping chunks to preserve context while enabling efficient retrieval.
+Large documents are divided into smaller overlapping chunks to preserve semantic context and improve retrieval quality.
 
 ---
 
 ### 3. Embedding Generation
 
-Each chunk is converted into a dense vector representation using HuggingFace embedding models.
+Each document chunk is converted into a dense vector using HuggingFace Sentence Transformer embedding models.
 
 ---
 
 ### 4. Vector Storage
 
-Embeddings are stored inside Pinecone for fast semantic retrieval.
+The generated embeddings are stored inside Pinecone for efficient semantic retrieval.
 
 ---
 
 ### 5. Semantic Retrieval
 
-When a user submits a question, the query is embedded and matched against the most relevant document chunks.
+When a user submits a question, the query is embedded and compared against stored document embeddings to retrieve the most relevant chunks.
 
 ---
 
 ### 6. Context Injection
 
-The retrieved chunks are inserted into the prompt sent to the LLM.
+The retrieved context is combined with the user query using a prompt template.
 
 ---
 
 ### 7. Response Generation
 
-The LLM generates an answer grounded in the retrieved medical knowledge rather than relying solely on its internal parameters.
+The prompt is sent to an open-weight LLM running locally through Ollama, which generates a grounded response using the retrieved healthcare knowledge instead of relying solely on its pre-trained parameters.
 
 ---
 
@@ -176,11 +204,34 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
+Install Ollama
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+Pull your preferred open-weight model
+
+```bash
+ollama pull llama3.2
+```
+
+or
+
+```bash
+ollama pull mistral
+```
+
+or
+
+```bash
+ollama pull qwen2.5
+```
+
 Create a `.env` file
 
 ```env
-PINECONE_API_KEY=YOUR_KEY
-GROQ_API_KEY=YOUR_KEY
+PINECONE_API_KEY=YOUR_API_KEY
 ```
 
 Run the application
@@ -193,44 +244,28 @@ python app.py
 
 # Example Workflow
 
-```
+```text
 User Question
-
-      │
-
-      ▼
-
-Convert Question into Embedding
-
-      │
-
-      ▼
-
-Search Pinecone Vector Database
-
-      │
-
-      ▼
-
-Retrieve Top-k Relevant Chunks
-
-      │
-
-      ▼
-
-Attach Context to Prompt
-
-      │
-
-      ▼
-
-Send to LLM
-
-      │
-
-      ▼
-
-Generate Grounded Medical Response
+       │
+       ▼
+Generate Query Embedding
+       │
+       ▼
+Semantic Search
+(Pinecone)
+       │
+       ▼
+Retrieve Top-k Chunks
+       │
+       ▼
+Prompt Construction
+       │
+       ▼
+Ollama
+(Open-Weight LLM)
+       │
+       ▼
+Grounded Healthcare Response
 ```
 
 ---
@@ -239,19 +274,19 @@ Generate Grounded Medical Response
 
 * Hybrid Search (Dense + BM25)
 * Metadata Filtering
-* Query Rewriting
 * Parent-Child Retrieval
-* Multi-Vector Retrieval
+* Query Rewriting
+* Context Compression
 * Re-ranking Models
-* Source Citation Support
+* Source Attribution
 * Conversational Memory
-* Evaluation Pipeline
-* Guardrails for Hallucination Detection
+* Evaluation Framework
+* Hallucination Detection
 * Multi-modal RAG
-* Agentic RAG Workflows
+* Agentic RAG
+* Docker Deployment
 * Kubernetes Deployment
 * CI/CD Pipeline
-* Docker Support
 * Monitoring and Observability
 
 ---
@@ -265,11 +300,13 @@ This project demonstrates practical understanding of:
 * Semantic Search
 * Text Chunking Strategies
 * Embedding Models
+* Dense Retrieval
 * Prompt Engineering
 * Context Injection
-* LLM Integration
+* Open-Weight LLM Integration
+* Local LLM Inference using Ollama
 * LangChain Pipelines
-* Production-Oriented Project Structure
+* Production-Ready AI System Design
 
 ---
 
@@ -277,8 +314,8 @@ This project demonstrates practical understanding of:
 
 **Rohan Karna**
 
-M.Tech Data & Computational Sciences
+**M.Tech – Data & Computational Sciences**
 
-Indian Institute of Technology Jodhpur
+**Indian Institute of Technology Jodhpur**
 
-Focused on building production-ready AI systems, Large Language Model applications, and Retrieval-Augmented Generation pipelines.
+Passionate about building production-ready AI systems, Retrieval-Augmented Generation (RAG) applications, Large Language Model (LLM) pipelines, and scalable Generative AI solutions using open-weight models.
