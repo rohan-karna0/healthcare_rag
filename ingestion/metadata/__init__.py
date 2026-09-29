@@ -1,0 +1,1 @@
+"""Persistent metadata helpers for ingestion."""

@@ -32,7 +32,7 @@ data/embeddings/
 data/qdrant_db/
 
 # Metadata
-metadata/
+/metadata/
 
 # Jupyter
 .ipynb_checkpoints/

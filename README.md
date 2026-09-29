@@ -1,6 +1,6 @@
 # Healthcare RAG System
 
-Production-ready Retrieval-Augmented Generation (RAG) system for answering healthcare-related questions using trusted medical knowledge, semantic search, vector databases, and **open-weight Large Language Models running locally with Ollama**.
+Retrieval-Augmented Generation (RAG) system for answering healthcare-related questions using trusted medical knowledge, semantic search, vector databases, and **open-weight Large Language Models running locally with Ollama**.
 
 This project demonstrates how modern RAG systems are built from scratch using document ingestion, intelligent chunking, embedding models, vector search, retrieval pipelines, and local LLM inference while following a modular and production-ready architecture.
 
@@ -41,8 +41,9 @@ User Question → Query Embedding → Hybrid Retrieval → Reranking → Ollama 
 | Component | Technology |
 |-----------|------------|
 | Language | Python 3.11+ |
-| Framework | LangChain |
+| Framework components | LangChain text splitters and community integrations |
 | LLM Runtime | Ollama |
+| Default generation model | `qwen2.5:7b` |
 | Embedding Model | `sentence-transformers/all-MiniLM-L6-v2` |
 | Vector Database | Qdrant |
 | Retrieval | Dense + BM25 + Hybrid + Reranking |
@@ -59,14 +60,14 @@ healthcare_rag/
 ├── app.py                  # CLI entry point
 ├── requirements.txt
 ├── .env.example
-├── config/                 # Settings, sources, prompts
+├── config/                 # Settings, sources, prompts (system configuration)
 ├── data/
 │   ├── samples/            # Offline sample medical documents
 │   ├── raw/                # Downloaded pages (gitignored)
 │   ├── processed/          # Parsed text (gitignored)
 │   ├── chunks/             # Chunk store (gitignored)
 │   └── qdrant_db/          # Local Qdrant storage (gitignored)
-├── ingestion/              # Crawler, downloader, parsers
+├── ingestion/              # Crawler, downloader, HTML/PDF parsers, metadata
 ├── processing/             # Cleaning, chunking, embeddings, indexing
 ├── vectorstore/            # Qdrant client and uploader
 ├── retrieval/              # Dense, BM25, hybrid retrieval
@@ -74,9 +75,15 @@ healthcare_rag/
 ├── generation/             # Prompt builder, Ollama generator
 ├── api/                    # FastAPI routes
 ├── ui/                     # Streamlit app
-├── evaluation/             # Benchmark scripts
+├── evaluation/             # Benchmark scripts and evaluation metrics
 └── tests/                  # Pytest suite
 ```
+
+The code is already split by RAG responsibility; this layout keeps those working package paths rather than relocating everything into a second `src/` package. Ingestion loaders live in `ingestion/parser/`, preprocessing in `processing/cleaning/`, chunking in `processing/chunking/`, and the end-to-end CLI is `app.py`. The HTML and PDF parsers are present; recursive chunking uses LangChain's text splitter. The current parsers use BeautifulSoup and pypdf directly, so they do not require a LangChain loader-specific API.
+
+### Current data coverage
+
+`data/samples/` contains only two short diabetes text documents (about 2.6 KB total). They are useful for smoke tests, not for reliable or broad healthcare answers. Run ingestion to crawl the configured CDC, WHO, ADA, NIDDK, and FDA sources; the crawler uses `httpx` and respects robots.txt, with no Firecrawl service or API key. Crawling requires internet access, and sites may block or limit automated requests. Verify the documents and chunks created before treating the index as sufficient for your use case.
 
 ---
 
@@ -130,20 +137,20 @@ Edit `.env` if needed. Key settings:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OLLAMA_MODEL` | `llama3.2` | Ollama model name |
+| `OLLAMA_MODEL` | `qwen2.5:7b` | Ollama model name |
 | `QDRANT_URL` | `http://localhost:6333` | Qdrant server URL |
 | `QDRANT_LOCAL_PATH` | `data/qdrant_db` | Fallback local storage |
 | `RETRIEVAL_MODE` | `hybrid` | `hybrid`, `dense`, or `bm25` |
 | `USE_RERANKER` | `true` | Set `false` for faster CPU dev |
 | `TOP_K` | `5` | Number of chunks to retrieve |
 
-### 4. Install and pull an Ollama model
+### 4. Install and pull Qwen with Ollama
 
-```powershell
-ollama pull llama3.2
+```bash
+ollama pull qwen2.5:7b
 ```
 
-Make sure Ollama is running before querying or using the UI.
+Make sure Ollama is running before querying or using the UI. This local Ollama setup does not require a model-provider API key. For a smaller machine, use a smaller Qwen tag supported by Ollama and set `OLLAMA_MODEL` in `.env` to the exact tag you pulled.
 
 ### 5. Qdrant (optional)
 

@@ -12,19 +12,31 @@ st.set_page_config(page_title="Healthcare RAG", page_icon="🏥", layout="wide")
 st.title("Healthcare RAG Assistant")
 st.caption("Grounded healthcare Q&A using local Ollama and Qdrant retrieval.")
 
+
+@st.cache_resource
+def get_retriever() -> Retriever:
+    return Retriever()
+
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 with st.sidebar:
     st.header("Settings")
     model = st.selectbox("Ollama model", [settings.ollama_model, "mistral", "qwen2.5"])
-    mode = st.selectbox("Retrieval mode", ["hybrid", "dense", "bm25"])
+    retrieval_modes = ["dense", "hybrid", "bm25"]
+    mode = st.selectbox(
+        "Retrieval mode",
+        retrieval_modes,
+        index=retrieval_modes.index(settings.retrieval_mode),
+    )
     top_k = st.slider("Top K", min_value=1, max_value=10, value=settings.top_k)
     source_filter = st.multiselect("Source filter", get_source_names())
 
     if st.button("Ingest & Index Sample/Data"):
         with st.spinner("Running ingestion pipeline..."):
             result = IngestionPipeline().ingest(sources=source_filter or None, index=True)
+            get_retriever.clear()
         st.success(
             f"Processed {result.documents_processed} documents, "
             f"created {result.chunks_created} chunks."
@@ -33,9 +45,10 @@ with st.sidebar:
     if st.button("Re-index Existing Chunks"):
         with st.spinner("Indexing chunks..."):
             count = IndexPipeline().run()
+            get_retriever.clear()
         st.success(f"Indexed {count} chunks.")
 
-retriever = Retriever()
+retriever = get_retriever()
 generator = Generator(model=model)
 
 for message in st.session_state.messages:

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     qdrant_local_path: str = "data/qdrant_db"
 
     ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.2"
+    ollama_model: str = "qwen2.5:7b"
 
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     reranker_model: str = "BAAI/bge-reranker-base"
@@ -27,8 +27,8 @@ class Settings(BaseSettings):
     chunk_overlap: int = 64
 
     top_k: int = 5
-    retrieval_mode: str = "hybrid"
-    use_reranker: bool = True
+    retrieval_mode: str = "dense"
+    use_reranker: bool = False
 
     crawl_delay_seconds: float = 1.0
     max_crawl_pages: int = 20

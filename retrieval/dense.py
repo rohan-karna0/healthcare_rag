@@ -34,14 +34,15 @@ class DenseRetriever:
         vector = self.embedder.embed_text(query)
         query_filter = build_filter(sources)
 
-        results = self.client.search(
+        response = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=vector,
+            query=vector,
             limit=top_k or settings.top_k,
             query_filter=query_filter,
+            with_payload=["chunk_id", "doc_id", "text", "source", "url", "title"],
         )
 
-        return [_to_chunk(hit) for hit in results]
+        return [_to_chunk(hit) for hit in response.points]
 
 
 def _to_chunk(hit: qmodels.ScoredPoint) -> RetrievedChunk:
